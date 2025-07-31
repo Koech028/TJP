@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradeJournal Pro | Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #0f172a;
+            --accent: #8b5cf6;
+            --light: #f1f5f9;
+            --dark: #0f172a;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray: #64748b;
+            --light-gray: #e2e8f0;
+            --dark-bg: #0b1120;
+            --card-bg: #1e293b;
+            --sidebar-bg: #0f172a;
+            --border: #334155;
+            --gradient: linear-gradient(135deg, #2563eb, #8b5cf6);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background-color: var(--dark-bg);
+            color: white;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s;
+            border-right: 1px solid var(--border);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        
+        .logo i {
+            font-size: 2rem;
+            color: var(--accent);
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--light-gray);
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: rgba(37, 99, 235, 0.1);
+            color: white;
+        }
+        
+        .nav-link i {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .nav-link.active {
+            color: var(--primary);
+            border-left: 3px solid var(--primary);
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: var(--sidebar-bg);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 10px 15px;
+            width: 350px;
+        }
+        
+        .search-bar input {
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            width: 100%;
+            font-size: 1rem;
+        }
+        
+        .search-bar input:focus {
+            outline: none;
+        }
+        
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .notification-btn, .help-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .notification-btn:hover, .help-btn:hover {
+            background: rgba(37, 99, 235, 0.2);
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+        
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-name {
+            font-weight: 600;
+        }
+        
+        .user-role {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        
+        /* Dashboard Content */
+        .dashboard {
+            padding: 30px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .welcome-banner {
+            background: var(--gradient);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .welcome-text h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .welcome-text p {
+            opacity: 0.9;
+            max-width: 600px;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border);
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .stat-title {
+            font-size: 1rem;
+            color: var(--gray);
+        }
+        
+        .stat-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            background: rgba(37, 99, 235, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .stat-change {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .positive {
+            color: var(--success);
+        }
+        
+        .negative {
+            color: var(--danger);
+        }
+        
+        /* Charts and Trades */
+        .charts-trades {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-container {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid var(--border);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .chart-header h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .time-filters {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .time-filter {
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .time-filter.active {
+            background: var(--primary);
+        }
+        
+        .chart-wrapper {
+            height: 300px;
+            position: relative;
+        }
+        
+        .recent-trades {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        
+        .trades-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .trades-header h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .view-all {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .trades-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .trade-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            transition: all 0.3s;
+        }
+        
+        .trade-item:hover {
+            background: rgba(37, 99, 235, 0.1);
+        }
+        
+        .trade-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        
+        .trade-forex {
+            background: rgba(37, 99, 235, 0.2);
+            color: var(--primary);
+        }
+        
+        .trade-crypto {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--accent);
+        }
+        
+        .trade-stock {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+        
+        .trade-details {
+            flex: 1;
+        }
+        
+        .trade-asset {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        
+        .trade-info {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        
+        .trade-value {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .trade-profit {
+            color: var(--success);
+        }
+        
+        .trade-loss {
+            color: var(--danger);
+        }
+        
+        /* Journal and Market */
+        .journal-market {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .quick-journal {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid var(--border);
+        }
+        
+        .journal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .journal-header h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .journal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-group label {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 15px;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .form-group textarea {
+            height: 120px;
+            resize: none;
+        }
+        
+        .journal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .market-news {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid var(--border);
+        }
+        
+        .news-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .news-header h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .news-filters {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .news-filter {
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .news-filter.active {
+            background: var(--primary);
+        }
+        
+        .news-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .news-item {
+            display: flex;
+            gap: 15px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .news-item:last-child {
+            border: none;
+            padding-bottom: 0;
+        }
+        
+        .news-content {
+            flex: 1;
+        }
+        
+        .news-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s;
+        }
+        
+        .news-title:hover {
+            color: var(--primary);
+        }
+        
+        .news-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        
+        .news-category {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .category-forex {
+            background: rgba(37, 99, 235, 0.2);
+            color: var(--primary);
+        }
+        
+        .category-crypto {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--accent);
+        }
+        
+        .category-stocks {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .logo h1, .nav-link span {
+                display: none;
+            }
+            
+            .logo {
+                justify-content: center;
+                padding: 20px 0;
+            }
+            
+            .nav-link {
+                justify-content: center;
+            }
+            
+            .search-bar {
+                width: 200px;
+            }
+            
+            .charts-trades, .journal-market {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -260px;
+                z-index: 100;
+                height: 100vh;
+            }
+            
+            .sidebar.active {
+                left: 0;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .search-bar {
+                display: none;
+            }
+            
+            .welcome-banner {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .menu-toggle {
+                display: block;
+                font-size: 1.5rem;
+                cursor: pointer;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="#" class="logo">
+            <i class="fas fa-book"></i>
+            <h1>TradeJournal</h1>
+        </a>
+        
+        <div class="nav-links">
+            <a href="#" class="nav-link active">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fas fa-chart-line"></i>
+                <span>Analytics</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fas fa-file-alt"></i>
+                <span>Trade Journal</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fas fa-wallet"></i>
+                <span>Portfolio</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fas fa-robot"></i>
+                <span>AI Insights</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search trades, assets, or analysis...">
+            </div>
+            
+            <div class="user-actions">
+                <div class="notification-btn">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="help-btn">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                <div class="user-profile">
+                    <div class="avatar">JD</div>
+                    <div class="user-info">
+                        <div class="user-name">John Doe</div>
+                        <div class="user-role">Professional Trader</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dashboard Content -->
+        <div class="dashboard">
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+                <div class="welcome-text">
+                    <h2>Welcome back, John!</h2>
+                    <p>You have 5 new trades to journal. Your portfolio is up 2.4% today. Keep up the good work!</p>
+                </div>
+                <button class="btn btn-outline">
+                    <i class="fas fa-plus"></i> New Trade Entry
+                </button>
+            </div>
+            
+            <!-- Stats Overview -->
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">TOTAL PROFIT</div>
+                        <div class="stat-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">$12,458</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i> 4.2% this month
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">WIN RATE</div>
+                        <div class="stat-icon">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">67.8%</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i> 2.1% improvement
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">OPEN TRADES</div>
+                        <div class="stat-icon">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">14</div>
+                    <div class="stat-change negative">
+                        <i class="fas fa-arrow-down"></i> 3 from last week
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">RISK/REWARD</div>
+                        <div class="stat-icon">
+                            <i class="fas fa-balance-scale"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">1:2.4</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-check"></i> Optimal
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Charts and Recent Trades -->
+            <div class="charts-trades">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Portfolio Performance</h3>
+                        <div class="time-filters">
+                            <div class="time-filter">1D</div>
+                            <div class="time-filter">1W</div>
+                            <div class="time-filter active">1M</div>
+                            <div class="time-filter">3M</div>
+                            <div class="time-filter">1Y</div>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="recent-trades">
+                    <div class="trades-header">
+                        <h3>Recent Trades</h3>
+                        <a href="#" class="view-all">View All</a>
+                    </div>
+                    <div class="trades-list">
+                        <div class="trade-item">
+                            <div class="trade-icon trade-forex">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <div class="trade-details">
+                                <div class="trade-asset">EUR/USD</div>
+                                <div class="trade-info">
+                                    <span>Forex</span>
+                                    <span>Today, 10:24 AM</span>
+                                </div>
+                            </div>
+                            <div class="trade-value trade-profit">+$458</div>
+                        </div>
+                        
+                        <div class="trade-item">
+                            <div class="trade-icon trade-crypto">
+                                <i class="fab fa-bitcoin"></i>
+                            </div>
+                            <div class="trade-details">
+                                <div class="trade-asset">BTC/USD</div>
+                                <div class="trade-info">
+                                    <span>Crypto</span>
+                                    <span>Today, 09:15 AM</span>
+                                </div>
+                            </div>
+                            <div class="trade-value trade-loss">-$320</div>
+                        </div>
+                        
+                        <div class="trade-item">
+                            <div class="trade-icon trade-stock">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="trade-details">
+                                <div class="trade-asset">AAPL</div>
+                                <div class="trade-info">
+                                    <span>Stocks</span>
+                                    <span>Yesterday, 2:45 PM</span>
+                                </div>
+                            </div>
+                            <div class="trade-value trade-profit">+$1,240</div>
+                        </div>
+                        
+                        <div class="trade-item">
+                            <div class="trade-icon trade-forex">
+                                <i class="fas fa-pound-sign"></i>
+                            </div>
+                            <div class="trade-details">
+                                <div class="trade-asset">GBP/JPY</div>
+                                <div class="trade-info">
+                                    <span>Forex</span>
+                                    <span>Yesterday, 11:30 AM</span>
+                                </div>
+                            </div>
+                            <div class="trade-value trade-profit">+$780</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Journal and Market News -->
+            <div class="journal-market">
+                <div class="quick-journal">
+                    <div class="journal-header">
+                        <h3>Quick Journal Entry</h3>
+                    </div>
+                    <form class="journal-form">
+                        <div class="form-group">
+                            <label for="trade-asset">Asset</label>
+                            <input type="text" id="trade-asset" placeholder="e.g. EUR/USD, BTC, AAPL">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="trade-type">Trade Type</label>
+                            <select id="trade-type">
+                                <option value="">Select trade type</option>
+                                <option value="buy">Buy/Long</option>
+                                <option value="sell">Sell/Short</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="trade-notes">Notes & Analysis</label>
+                            <textarea id="trade-notes" placeholder="Why did you take this trade? What was your strategy? How did you feel?"></textarea>
+                        </div>
+                        
+                        <div class="journal-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Entry
+                            </button>
+                            <button type="button" class="btn btn-outline">
+                                <i class="fas fa-plus"></i> Add Details
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="market-news">
+                    <div class="news-header">
+                        <h3>Market News</h3>
+                        <div class="news-filters">
+                            <div class="news-filter active">All</div>
+                            <div class="news-filter">Forex</div>
+                            <div class="news-filter">Crypto</div>
+                            <div class="news-filter">Stocks</div>
+                        </div>
+                    </div>
+                    <div class="news-list">
+                        <div class="news-item">
+                            <div class="news-content">
+                                <a href="#" class="news-title">Fed Signals Possible Rate Hike in September Meeting</a>
+                                <div class="news-meta">
+                                    <span>2 hours ago</span>
+                                    <span class="news-category category-forex">Forex</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="news-item">
+                            <div class="news-content">
+                                <a href="#" class="news-title">Bitcoin Surpasses $45,000 as Institutional Adoption Grows</a>
+                                <div class="news-meta">
+                                    <span>5 hours ago</span>
+                                    <span class="news-category category-crypto">Crypto</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="news-item">
+                            <div class="news-content">
+                                <a href="#" class="news-title">Tech Stocks Rally as Earnings Season Exceeds Expectations</a>
+                                <div class="news-meta">
+                                    <span>1 day ago</span>
+                                    <span class="news-category category-stocks">Stocks</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chart.js Initialization
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        const performanceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                datasets: [{
+                    label: 'Portfolio Value',
+                    data: [12000, 12500, 13200, 12800, 14000, 14200, 14800],
+                    borderColor: '#8b5cf6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#2563eb',
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        titleColor: '#f1f5f9',
+                        bodyColor: '#cbd5e1',
+                        borderColor: '#334155',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)'
+                        },
+                        ticks: {
+                            color: '#94a3b8',
+                            callback: function(value) {
+                                return '$' + value;
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)'
+                        },
+                        ticks: {
+                            color: '#94a3b8'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Toggle Password Visibility
+        document.querySelectorAll('.toggle-password').forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.previousElementSibling;
+                const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                input.setAttribute('type', type);
+                this.querySelector('i').classList.toggle('fa-eye');
+                this.querySelector('i').classList.toggle('fa-eye-slash');
+            });
+        });
+        
+        // Time Filter Toggle
+        document.querySelectorAll('.time-filter').forEach(filter => {
+            filter.addEventListener('click', function() {
+                document.querySelectorAll('.time-filter').forEach(f => f.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // News Filter Toggle
+        document.querySelectorAll('.news-filter').forEach(filter => {
+            filter.addEventListener('click', function() {
+                document.querySelectorAll('.news-filter').forEach(f => f.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Form Submission
+        document.querySelector('.journal-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Trade journal entry saved successfully!');
+            this.reset();
+        });
+    </script>
+</body>
+</html>

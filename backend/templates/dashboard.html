@@ -1,0 +1,1640 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block styles %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TradeJournal Pro | Dashboard</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    :root {
+        --primary: #2563eb;
+        --secondary: #0f172a;
+        --accent: #8b5cf6;
+        --light: #f1f5f9;
+        --dark: #0f172a;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --gray: #64748b;
+        --light-gray: #e2e8f0;
+        --dark-bg: #0b1120;
+        --card-bg: #1e293b;
+        --sidebar-bg: #0f172a;
+        --border: #334155;
+        --gradient: linear-gradient(135deg, #2563eb, #8b5cf6);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+        background-color: var(--dark-bg);
+        color: white;
+        display: flex;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        width: 250px;
+        background: var(--sidebar-bg);
+        padding: 20px 0;
+        position: fixed;
+        height: 100vh;
+        display: flex;
+        overflow-y: auto;
+        z-index: 100;
+        flex-direction: column;
+        transition: all 0.3s;
+        border-right: 1px solid var(--border);
+    }
+    /* Collapsible sidebar styles */
+    .collapse-toggle {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        cursor: pointer;
+        color: #94a3b8;
+        font-size: 1.2rem;
+        z-index: 101;
+        transition: all 0.3s;
+    }
+
+        .collapse-toggle:hover {
+            color: white;
+            transform: scale(1.1);
+        }
+
+    .sidebar.collapsed {
+        width: 70px;
+        transition: width 0.3s ease;
+    }
+
+        .sidebar.collapsed h2,
+        .sidebar.collapsed .nav-text {
+            display: none;
+        }
+
+        .sidebar.collapsed .nav-icon {
+            margin-right: 0;
+            font-size: 1.3rem;
+        }
+
+        .sidebar.collapsed ul li a {
+            justify-content: center;
+            padding: 12px;
+        }
+
+        .sidebar.collapsed .logo {
+            justify-content: center;
+            padding: 20px 0;
+        }
+
+            .sidebar.collapsed .logo i {
+                font-size: 1.8rem;
+            }
+
+    .main-content.expanded {
+        margin-left: 70px;
+        transition: margin-left 0.3s ease;
+    }
+
+    /* Mobile menu toggle */
+    .mobile-menu-toggle {
+        display: none;
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1000;
+        background: rgba(15, 23, 42, 0.8);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        color: white;
+        font-size: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .mobile-menu-toggle {
+            display: flex;
+        }
+
+        .sidebar {
+            left: -240px;
+            transition: left 0.3s ease;
+        }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+        .main-content {
+            margin-left: 0;
+        }
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 20px 0;
+        margin-bottom: 30px;
+    }
+
+        .logo i {
+            font-size: 2rem;
+            color: var(--accent);
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+    .nav-links {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex: 1;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px;
+        border-radius: 10px;
+        text-decoration: none;
+        color: var(--light-gray);
+        transition: all 0.3s;
+    }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(37, 99, 235, 0.1);
+            color: white;
+        }
+
+        .nav-link i {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+            border-left: 3px solid var(--primary);
+        }
+
+    /* Main Content */
+    .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        margin-left: 250px;
+        transition: margin-left 0.3s ease;
+    }
+
+        .main-content.expanded {
+            margin-left: 70px;
+        }
+
+    /* Header */
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 30px;
+        background: var(--sidebar-bg);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .search-bar {
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        padding: 10px 15px;
+        width: 350px;
+    }
+
+        .search-bar input {
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+            .search-bar input:focus {
+                outline: none;
+            }
+
+    .user-actions {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .notification-btn, .help-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+        .notification-btn:hover, .help-btn:hover {
+            background: rgba(37, 99, 235, 0.2);
+        }
+
+    .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+    }
+
+    .avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: var(--gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 1.2rem;
+    }
+
+    .user-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .user-name {
+        font-weight: 600;
+    }
+
+    .user-role {
+        font-size: 0.8rem;
+        color: var(--gray);
+    }
+
+    /* Dashboard Content */
+    .dashboard {
+        padding: 30px;
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .welcome-banner {
+        background: var(--gradient);
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .welcome-banner {
+        transition: opacity 1s ease;
+    }
+
+    .welcome-banner {
+        transition: opacity 1s ease, transform 0.5s ease;
+        transform-origin: top;
+    }
+
+        .welcome-banner.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scaleY(0);
+            height: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .welcome-banner.flash {
+            animation: flash 1s ease-in-out infinite alternate;
+        }
+
+        .welcome-banner.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+
+    .welcome-text p {
+        opacity: 0.9;
+        max-width: 600px;
+    }
+
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: var(--card-bg);
+        border-radius: 15px;
+        padding: 25px;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid var(--border);
+    }
+
+    .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .stat-title {
+        font-size: 1rem;
+        color: var(--gray);
+    }
+
+    .stat-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        background: rgba(37, 99, 235, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        font-size: 1.2rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .stat-change {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.9rem;
+    }
+
+    .positive {
+        color: var(--success);
+    }
+
+    .negative {
+        color: var(--danger);
+    }
+
+    /* Charts and Trades */
+    .charts-trades {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .chart-container {
+        background: var(--card-bg);
+        border-radius: 15px;
+        padding: 25px;
+        border: 1px solid var(--border);
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+        .chart-header h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+    .time-filters {
+        display: flex;
+        gap: 10px;
+    }
+
+    .time-filter {
+        padding: 6px 12px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+        .time-filter.active {
+            background: var(--primary);
+        }
+
+    .chart-wrapper {
+        height: 300px;
+        position: relative;
+    }
+
+    .recent-trades {
+        background: var(--card-bg);
+        border-radius: 15px;
+        padding: 25px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+    }
+
+    .trades-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+        .trades-header h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+    .view-all {
+        color: var(--primary);
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+
+    .trades-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        max-height: 300px;
+        overflow-y: auto;
+        padding-right: 5px;
+        scrollbar-width: thin;
+    }
+
+    .trade-item {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.03);
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+        .trade-item:hover {
+            background: rgba(37, 99, 235, 0.1);
+        }
+
+    .trade-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+    }
+
+    .trade-forex {
+        background: rgba(37, 99, 235, 0.2);
+        color: var(--primary);
+    }
+
+    .trade-crypto {
+        background: rgba(139, 92, 246, 0.2);
+        color: var(--accent);
+    }
+
+    .trade-stock {
+        background: rgba(16, 185, 129, 0.2);
+        color: var(--success);
+    }
+
+    .trade-details {
+        flex: 1;
+    }
+
+    .trade-asset {
+        font-weight: 600;
+        margin-bottom: 3px;
+    }
+
+    .trade-info {
+        display: flex;
+        gap: 15px;
+        font-size: 0.85rem;
+        color: var(--gray);
+    }
+
+    .trade-value {
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .trade-profit {
+        color: var(--success);
+    }
+
+    .trade-loss {
+        color: var(--danger);
+    }
+
+    /* New container for the two sections */
+    .news-drawdown-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    /* Updated market news box with fixed height and scroll */
+    .market-news-box {
+        background: var(--card-bg);
+        border-radius: 15px;
+        padding: 25px;
+        border: 1px solid var(--border);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        min-height: 400px; /* Fixed minimum height */
+        max-height: 500px; /* Maximum height before scrolling */
+    }
+
+        .market-news-box h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: sticky;
+            top: 0;
+            background: var(--card-bg);
+            z-index: 1;
+            padding-bottom: 10px;
+        }
+
+    .scrollable-news {
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 5px;
+        scrollbar-width: thin;
+        scrollbar-color: var(--accent) var(--card-bg);
+    }
+
+        /* Custom scrollbar for Webkit browsers */
+        .scrollable-news::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scrollable-news::-webkit-scrollbar-track {
+            background: var(--card-bg);
+            border-radius: 3px;
+        }
+
+        .scrollable-news::-webkit-scrollbar-thumb {
+            background-color: var(--accent);
+            border-radius: 3px;
+        }
+
+    .news-item {
+        margin-bottom: 15px;
+        padding: 15px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.03);
+        transition: all 0.3s;
+    }
+
+        .news-item:hover {
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+    .news-content h5 {
+        margin: 0 0 8px 0;
+    }
+
+        .news-content h5 a {
+            color: var(--light);
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.3s;
+        }
+
+            .news-content h5 a:hover {
+                color: var(--accent);
+            }
+
+    .news-content p {
+        font-size: 0.9rem;
+        color: var(--light-gray);
+        margin: 8px 0;
+        line-height: 1.4;
+    }
+
+    .news-meta {
+        font-size: 0.8rem;
+        color: var(--gray);
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+    }
+
+        .news-meta .news-category {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--accent);
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+    /* Updated drawdown chart container to match height */
+    .drawdown-container {
+        background: var(--card-bg);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        padding: 25px;
+        border: 1px solid var(--border);
+        height: 100%;
+        min-height: 400px; /* Match news container */
+        max-height: 500px; /* Match news container */
+        display: flex;
+        flex-direction: column;
+    }
+
+    .drawdown-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+        .drawdown-header h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+    /* Chart wrapper inside drawdown container */
+    .drawdown-container .chart-wrapper {
+        flex: 1;
+        min-height: 300px; /* Ensure chart has minimum space */
+        position: relative;
+    }
+
+    /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content {
+        background: var(--card-bg);
+        border-radius: 15px;
+        width: 90%;
+        max-width: 600px;
+        padding: 30px;
+        position: relative;
+        border: 1px solid var(--border);
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .close-modal {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--gray);
+        z-index: 2;
+    }
+
+    /* Notification */
+    .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 8px;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        max-width: 350px;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        animation: slideIn 0.3s ease-out;
+    }
+
+    .success {
+        background: linear-gradient(135deg, #10b981, #059669);
+    }
+
+    .error {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        margin-left: 15px;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 900px) {
+        .news-drawdown-container {
+            grid-template-columns: 1fr;
+        }
+
+        .charts-trades, .journal-market {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            position: fixed;
+            left: -260px;
+            z-index: 100;
+            height: 100vh;
+        }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+        .header {
+            padding: 15px;
+        }
+
+        .search-bar {
+            display: none;
+        }
+
+        .welcome-banner {
+            flex-direction: column;
+            text-align: center;
+            gap: 20px;
+        }
+
+        .stats-container {
+            grid-template-columns: 1fr;
+        }
+
+        .menu-toggle {
+            display: block;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .auth-tabs {
+            justify-content: center;
+        }
+
+        .remember-forgot {
+            flex-direction: column;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .welcome-banner {
+            flex-direction: column;
+            gap: 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mobile-menu-toggle">
+    <i class="fas fa-bars"></i>
+</div>
+
+<aside class="sidebar" style="width: 240px; background-color: #0f172a; color: white; height: 100vh; padding: 20px;">
+    <div class="collapse-toggle">
+        <i class="fas fa-ellipsis-vertical"></i>
+    </div>
+
+    <div class="logo">
+        <i class="fas fa-chart-line"></i>
+        <h2>TradeJournal</h2>
+    </div>
+
+    <ul style="list-style: none; padding: 0;">
+        <li style="margin-bottom: 20px;">
+            <a href="{{ url_for('dashboard') }}" class="{% if request.path == '/dashboard' %}active{% endif %}" style="color: white; text-decoration: none; display: flex; align-items: center;">
+                <i class="fas fa-home nav-icon"></i>
+                <span class="nav-text">Home</span>
+            </a>
+        </li>
+        <li style="margin-bottom: 20px;">
+            <a href="{{ url_for('analytics') }}" class="{% if request.path == '/analytics' %}active{% endif %}" style="color: white; text-decoration: none; display: flex; align-items: center;">
+                <i class="fas fa-chart-bar nav-icon"></i>
+                <span class="nav-text">Analytics</span>
+            </a>
+        </li>
+        <li style="margin-bottom: 20px;">
+            <a href="{{ url_for('settings') }}" class="{% if request.path == '/settings' %}active{% endif %}" style="color: white; text-decoration: none; display: flex; align-items: center;">
+                <i class="fas fa-exchange-alt nav-icon"></i>
+                <span class="nav-text">Journal</span>
+            </a>
+        </li>
+        <li style="margin-bottom: 20px;">
+            <a href="{{ url_for('report') }}" class="{% if request.path == '/report' %}active{% endif %}" style="color: white; text-decoration: none; display: flex; align-items: center;">
+                <i class="fas fa-file-alt nav-icon"></i>
+                <span class="nav-text">Reports</span>
+            </a>
+        </li>
+        <li style="margin-bottom: 20px;">
+            <a href="{{ url_for('settings') }}" class="{% if request.path == '/settings' %}active{% endif %}" style="color: white; text-decoration: none; display: flex; align-items: center;">
+                <i class="fas fa-cog nav-icon"></i>
+                <span class="nav-text">Settings</span>
+            </a>
+        </li>
+        <li style="margin-bottom: 20px;">
+            <a href="{{ url_for('support') }}" class="{% if request.path == '/support' %}active{% endif %}" style="color: white; text-decoration: none; display: flex; align-items: center;">
+                <i class="fas fa-headset nav-icon"></i>
+                <span class="nav-text">Support</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('sign_page') }}" style="color: white; text-decoration: none; display: flex; align-items: center;">
+                <i class="fas fa-sign-out-alt nav-icon"></i>
+                <span class="nav-text">Logout</span>
+            </a>
+        </li>
+    </ul>
+</aside>
+
+<div class="main-content">
+    <div class="header">
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search trades, assets, or analysis...">
+        </div>
+
+        <div class="user-actions">
+            <div class="notification-btn">
+                <i class="fas fa-bell"></i>
+            </div>
+            <div class="help-btn">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <div class="user-profile">
+                <div class="avatar" id="user-avatar">
+                    {{ user.name[:1].upper() }}{{ user.name.split(' ')[1][:1].upper() if ' ' in user.name else '' }}
+                </div>
+                <div class="user-info">
+                    <div class="user-name" id="user-name">{{ user.name }}</div>
+                    <div class="user-role" id="user-role">
+                        {{ user.role or 'Trader' }} |
+                        {{ user.user_group.value.replace('_', ' ').title() if user.user_group else 'Standard' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard">
+        <div id="welcome-banner" class="welcome-banner">
+            <div class="welcome-text">
+                <h2 id="welcome-title">Welcome, {{ user.name }} 👋</h2>
+                <p id="welcome-message">
+                    You have {{ stats.open_trades }} open trade{{ 's' if stats.open_trades != 1 else '' }}.
+                    Your portfolio is {{ 'up' if stats.profit_change >= 0 else 'down' }} {{ stats.profit_change }}% this month.
+                    Keep up the good work!
+                </p>
+            </div>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">TOTAL PROFIT</div>
+                    <div class="stat-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="total-profit">{{ get_currency_symbol(user.currency) }}{{ "%.2f"|format(stats.total_profit) }}</div>
+                <div class="stat-change {{ 'positive' if stats.profit_change_positive else 'negative' }}" id="profit-change">
+                    <i class="fas {{ 'fa-arrow-up' if stats.profit_change_positive else 'fa-arrow-down' }}"></i>
+                    {{ stats.profit_change_abs }}% this month
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">WIN RATE</div>
+                    <div class="stat-icon">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="win-rate">{{ stats.win_rate }}%</div>
+                <div class="stat-change {{ 'positive' if stats.win_rate_change_positive else 'negative' }}" id="win-rate-change">
+                    <i class="fas {{ 'fa-arrow-up' if stats.win_rate_change_positive else 'fa-arrow-down' }}"></i>
+                    {{ stats.win_rate_change_abs }}% improvement
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">OPEN TRADES</div>
+                    <div class="stat-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="open-trades">{{ stats.open_trades }}</div>
+                <div class="stat-change {{ 'positive' if stats.open_trades_change_positive else 'negative' }}" id="open-trades-change">
+                    <i class="fas {{ 'fa-arrow-up' if stats.open_trades_change_positive else 'fa-arrow-down' }}"></i>
+                    {{ stats.open_trades_change_abs }} from last week
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">RISK/REWARD</div>
+                    <div class="stat-icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="risk-reward">{{ stats.risk_reward }}</div>
+                <div class="stat-change positive" id="risk-reward-change">
+                    <i class="fas fa-check"></i>
+                    Optimal
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-trades">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>Portfolio Performance</h3>
+                    <div class="time-filters">
+                        <div class="time-filter" data-period="1d">1D</div>
+                        <div class="time-filter" data-period="1w">1W</div>
+                        <div class="time-filter active" data-period="1m">1M</div>
+                        <div class="time-filter" data-period="3m">3M</div>
+                        <div class="time-filter" data-period="1y">1Y</div>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+
+            <div class="recent-trades">
+                <div class="trades-header">
+                    <h3>Recent Trades</h3>
+                    <a href="#" class="view-all" id="view-all-trades">View All</a>
+                </div>
+                <div class="trades-list" id="trades-list">
+                </div>
+            </div>
+        </div>
+
+        <!-- New combined news and drawdown section -->
+        <div class="news-drawdown-container">
+            <!-- Drawdown Chart (now on the left) -->
+            <div class="drawdown-container">
+                <div class="drawdown-header">
+                    <h3><i class="fas fa-chart-line"></i> Equity Drawdown</h3>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="drawdownChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Market News (now on the right) -->
+            <div class="market-news-box">
+                <h3><i class="fas fa-newspaper"></i> Market News</h3>
+                <div id="market-news-container" class="scrollable-news">
+                    {% if market_news %}
+                    {% for news in market_news %}
+                    <div class="news-item">
+                        <div class="news-content">
+                            <h5>
+                                <a href="{{ news.url }}" target="_blank">{{ news.title }}</a>
+                            </h5>
+                            <p>{{ news.summary }}</p>
+                            <div class="news-meta">
+                                <span>Source: {{ news.source }}</span>
+                                <span class="news-category">{{ news.category }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p>No market news available at the moment.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="trade-modal">
+    <div class="modal-content">
+        <span class="close-modal" id="close-modal">&times;</span>
+        <h2>Trade Details</h2>
+        <div id="trade-detail-content">
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="journal-modal">
+    <div class="modal-content">
+        <span class="close-modal" id="close-journal-modal">&times;</span>
+        <h2>Journal Entry Details</h2>
+        <form id="full-journal-form">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="trade-pair">Asset/Pair</label>
+                    <input type="text" id="trade-pair" placeholder="e.g. EUR/USD, AAPL, BTC" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="trade-type">Trade Type</label>
+                    <select id="trade-type" required>
+                        <option value="">Select trade type</option>
+                        <option value="buy">Buy/Long</option>
+                        <option value="sell">Sell/Short</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="entry-price">Entry Price</label>
+                    <input type="number" id="entry-price" placeholder="Enter entry price" step="0.0001" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="exit-price">Exit Price</label>
+                    <input type="number" id="exit-price" placeholder="Enter exit price" step="0.0001" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="position-size">Position Size</label>
+                    <input type="number" id="position-size" placeholder="Enter position size" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="trade-date">Trade Date</label>
+                    <input type="date" id="trade-date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="trade-outcome">Outcome</label>
+                    <select id="trade-outcome" required>
+                        <option value="">Select outcome</option>
+                        <option value="win">Win</option>
+                        <option value="loss">Loss</option>
+                        <option value="break-even">Break Even</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="profit-loss">Profit/Loss ({{ get_currency_symbol(user.currency) }})</label>
+                    <input type="number" id="profit-loss" placeholder="Enter P/L amount" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="trade-notes">Trade Notes & Analysis</label>
+                <textarea id="trade-notes" placeholder="Why did you take this trade? What was your strategy? How did market conditions affect your decision? What emotions did you experience?" required></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="reset" class="btn btn-outline">Clear</button>
+                <button type="submit" class="btn btn-primary">Save Trade</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Global chart references
+window.performanceChart = null;
+window.drawdownChart = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+    // DOM Elements
+    const sidebar = document.querySelector('.sidebar');
+    const collapseToggle = document.querySelector('.collapse-toggle');
+    const mainContent = document.querySelector('.main-content');
+    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+    const banner = document.getElementById('welcome-banner');
+
+    // Helper function for element selection
+    const byId = id => document.getElementById(id);
+
+    // Welcome banner functionality
+    if (banner) {
+        banner.classList.remove('hidden');
+        setTimeout(() => {
+            banner.classList.add('hidden');
+            setTimeout(() => {
+                banner.style.display = 'none';
+            }, 1000);
+        }, 10000);
+    }
+
+    // Sidebar collapse (desktop)
+    if (collapseToggle) {
+        collapseToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+        });
+    }
+
+    // Sidebar toggle (mobile)
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+    }
+
+    // Restore sidebar state
+    const savedState = localStorage.getItem('sidebarCollapsed');
+    if (savedState === 'true') {
+        sidebar.classList.add('collapsed');
+        mainContent.classList.add('expanded');
+    }
+
+    // Close sidebar when clicking outside (mobile only)
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 768 &&
+            !sidebar.contains(e.target) &&
+            !mobileMenuToggle.contains(e.target) &&
+            sidebar.classList.contains('active')) {
+            sidebar.classList.remove('active');
+        }
+    });
+
+    // Initialize Equity Chart
+    const initEquityChart = () => {
+        const ctx = document.getElementById('equityChart')?.getContext('2d');
+        if (!ctx) return;
+
+        try {
+            const data = {
+                labels: {{ time_series_data | map(attribute='date') | list | tojson }},
+                datasets: [{
+                    label: 'Equity Over Time',
+                    data: {{ time_series_data | map(attribute='value') | list | tojson }},
+                    fill: true,
+                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    tension: 0.4,
+                    pointRadius: 0
+                }]
+            };
+
+            new Chart(ctx, {
+                type: 'line',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: {
+                            ticks: { color: '#64748b' },
+                            grid: { display: false }
+                        },
+                        y: {
+                            beginAtZero: false,
+                            ticks: { color: '#64748b' },
+                            grid: { borderDash: [4, 4] }
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error initializing equity chart:', error);
+        }
+    };
+
+    // Initialize Dashboard
+    const initDashboard = () => {
+        const userData = {
+            name: "{{ user.name }}",
+            email: "{{ user.email }}",
+            role: "{{ user.role }}"
+        };
+        const statsData = {{ stats|default({})|tojson }};
+        const recentTradesData = {{ recent_trades|default([])|tojson }};
+        const timeSeriesData = {{ time_series_data|default([])|tojson }};
+        const drawdownData = {{ drawdown_data|default([])|tojson }};
+
+        // Set user info
+        if (byId('user-name')) byId('user-name').textContent = userData.name;
+        if (byId('user-role')) byId('user-role').textContent = userData.role;
+        if (byId('user-avatar')) {
+            byId('user-avatar').textContent = userData.name.split(' ').map(n => n[0]).join('');
+        }
+
+        // Set welcome message
+        if (byId('welcome-title')) byId('welcome-title').textContent = `Welcome, ${userData.name} 👋`;
+        if (byId('welcome-message') && statsData) {
+            byId('welcome-message').textContent =
+                `You have ${statsData.open_trades} open trades. Your portfolio is up ${statsData.profit_change}% this month.`;
+        }
+
+        // Set stats
+        if (statsData) {
+            if (byId('total-profit')) byId('total-profit').textContent = `$${statsData.total_profit?.toLocaleString() || '0'}`;
+            if (byId('win-rate')) byId('win-rate').textContent = `${statsData.win_rate || 0}%`;
+            if (byId('open-trades')) byId('open-trades').textContent = statsData.open_trades || 0;
+            if (byId('risk-reward')) byId('risk-reward').textContent = statsData.risk_reward || '0';
+        }
+
+        // Initialize charts
+        initEquityChart();
+        initPerformanceChart(timeSeriesData);
+        initDrawdownChart(drawdownData);
+        renderRecentTrades(recentTradesData);
+    };
+
+    // Initialize Performance Chart
+    const initPerformanceChart = (data) => {
+        const ctx = document.getElementById('performanceChart')?.getContext('2d');
+        if (!ctx) return;
+
+        if (window.performanceChart) {
+            window.performanceChart.destroy();
+        }
+
+        const labels = data.map(item => {
+            const date = new Date(item.date);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        });
+
+        window.performanceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Portfolio Value',
+                    data: data.map(item => item.value),
+                    borderColor: '#8b5cf6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#2563eb',
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        titleColor: '#f1f5f9',
+                        bodyColor: '#cbd5e1',
+                        borderColor: '#334155',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: false,
+                        callbacks: {
+                            label: context => `$${context.parsed.y.toLocaleString()}`
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: {
+                            color: '#94a3b8',
+                            callback: value => '$' + value.toLocaleString()
+                        }
+                    },
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#94a3b8' }
+                    }
+                }
+            }
+        });
+    };
+
+    // Initialize Drawdown Chart
+    const initDrawdownChart = (data) => {
+        const ctx = document.getElementById('drawdownChart')?.getContext('2d');
+        if (!ctx) return;
+
+        if (window.drawdownChart) {
+            window.drawdownChart.destroy();
+        }
+
+        window.drawdownChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.map(item => {
+                    const date = new Date(item.date);
+                    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                }),
+                datasets: [{
+                    label: 'Equity Drawdown',
+                    data: data.map(item => item.value),
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: context => `Drawdown: $${Math.abs(context.parsed.y)}`
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            color: '#94a3b8',
+                            callback: val => '$' + val.toLocaleString()
+                        },
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                    },
+                    x: {
+                        ticks: { color: '#94a3b8' },
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                    }
+                }
+            }
+        });
+    };
+
+    // Render Recent Trades
+    const renderRecentTrades = (data) => {
+        const tradesList = document.getElementById('trades-list');
+        if (!tradesList) return;
+
+        tradesList.innerHTML = '';
+
+        data.forEach(trade => {
+            const item = document.createElement('div');
+            item.className = 'trade-item';
+            item.dataset.id = trade.id;
+
+            const typeClass = trade.type === 'Forex' ? 'trade-forex' :
+                            trade.type === 'Crypto' ? 'trade-crypto' : 'trade-stock';
+
+            const icon = trade.type === 'Forex' ? 'fas fa-dollar-sign' :
+                        trade.type === 'Crypto' ? 'fab fa-bitcoin' : 'fas fa-chart-line';
+
+            const profitClass = trade.profit > 0 ? 'trade-profit' : 'trade-loss';
+            const profitSign = trade.profit > 0 ? '+' : '';
+
+            item.innerHTML = `
+                <div class="trade-icon ${typeClass}">
+                    <i class="${icon}"></i>
+                </div>
+                <div class="trade-details">
+                    <div class="trade-asset">${trade.asset}</div>
+                    <div class="trade-info">
+                        <span>${trade.type}</span>
+                        <span>${trade.date}</span>
+                    </div>
+                </div>
+                <div class="trade-value ${profitClass}">${profitSign}$${Math.abs(trade.profit)}</div>
+            `;
+            item.addEventListener('click', () => showTradeDetail(trade.id));
+            tradesList.appendChild(item);
+        });
+    };
+
+    // Show Trade Detail
+    const showTradeDetail = (id) => {
+        console.log('View details for trade:', id);
+        // Optional: window.location.href = `/trades/${id}`;
+    };
+
+    // Format Relative Time
+    const formatRelativeTime = (dateString) => {
+        const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+        const parsedDate = new Date(dateString);
+        if (isNaN(parsedDate)) return "Invalid date";
+
+        const now = new Date();
+        const secondsDiff = Math.floor((parsedDate - now) / 1000);
+
+        const divisions = [
+            { amount: 60, name: 'seconds' },
+            { amount: 60, name: 'minutes' },
+            { amount: 24, name: 'hours' },
+            { amount: 7, name: 'days' },
+            { amount: 4.34524, name: 'weeks' },
+            { amount: 12, name: 'months' },
+            { amount: Number.POSITIVE_INFINITY, name: 'years' }
+        ];
+
+        let duration = secondsDiff;
+        let unit = 'seconds';
+
+        for (let i = 0; i < divisions.length; i++) {
+            if (Math.abs(duration) < divisions[i].amount) {
+                unit = divisions[i].name;
+                break;
+            }
+            duration /= divisions[i].amount;
+        }
+
+        return rtf.format(Math.round(duration), unit);
+    };
+
+    // Load Market News
+    const loadLatestNews = () => {
+        fetch('/news-feed')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('market-news-container');
+                if (!container) return;
+
+                container.innerHTML = data.length === 0
+                    ? '<p>No market news available right now. Try again later.</p>'
+                    : data.map(news => `
+                        <div class="news-item">
+                            <div class="news-content">
+                                <a href="${news.url}" class="news-title" target="_blank">${news.title}</a>
+                                <div class="news-meta">
+                                    <span>${formatRelativeTime(news.publishedDate)}</span>
+                                    <span class="news-category category-${news.category.toLowerCase()}">${news.category}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+            })
+            .catch(error => console.error('Error loading news:', error));
+    };
+
+    // Navigation Handlers
+    const setupNavigation = () => {
+        byId('dashboardBtn')?.addEventListener('click', e => {
+            e.preventDefault();
+            window.location.reload();
+        });
+
+        byId('analyticsBtn')?.addEventListener('click', e => {
+            e.preventDefault();
+            alert('Analytics section clicked');
+        });
+
+        byId('journalBtn')?.addEventListener('click', e => {
+            e.preventDefault();
+            window.location.href = '/journal';
+        });
+
+        byId('portfolioBtn')?.addEventListener('click', e => {
+            e.preventDefault();
+            window.location.href = '/portfolio';
+        });
+
+        byId('insightsBtn')?.addEventListener('click', e => {
+            e.preventDefault();
+            alert('AI Insights coming soon');
+        });
+
+        byId('settingsBtn')?.addEventListener('click', e => {
+            e.preventDefault();
+            window.location.href = '/settings';
+        });
+
+        byId('logoutBtn')?.addEventListener('click', e => {
+            e.preventDefault();
+            fetch('/api/logout', {
+                method: 'POST',
+                credentials: 'same-origin'
+            }).then(response => {
+                if (response.redirected) {
+                    localStorage.removeItem('token');
+                    window.location.href = response.url;
+                }
+            });
+        });
+    };
+
+    // Journal Form Submission
+    const setupJournalForm = () => {
+        byId('journal-form')?.addEventListener('submit', e => {
+            e.preventDefault();
+            const formData = {
+                asset: byId('journal-asset').value,
+                trade_type: byId('journal-trade-type').value,
+                notes: byId('journal-notes').value
+            };
+
+            fetch('/api/trades', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Trade journal entry saved successfully!', 'success');
+                    byId('journal-form').reset();
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    showNotification(data.error || 'Failed to save trade', 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('Network error. Please try again.', 'error');
+            });
+        });
+    };
+
+    // Show Notification
+    const showNotification = (message, type) => {
+        alert(`${type.toUpperCase()}: ${message}`);
+    };
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+        if (window.performanceChart) window.performanceChart.destroy();
+        if (window.drawdownChart) window.drawdownChart.destroy();
+    });
+
+    // Initialization
+    initDashboard();
+    setupNavigation();
+    setupJournalForm();
+    loadLatestNews();
+    setInterval(loadLatestNews, 300000); // 5 minutes
+});
+</script>
+{% endblock %}

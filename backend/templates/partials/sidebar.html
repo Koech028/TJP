@@ -1,0 +1,19 @@
+<aside style="width: 240px; background-color: var(--sidebar-bg); color: white; padding: 20px;">
+  <h2 style="margin-bottom: 30px;">📊 TradeJournal</h2>
+  <nav>
+    <ul style="list-style: none; padding: 0;">
+      <li style="margin-bottom: 15px;">
+        <a href="{{ url_for('dashboard') }}" class="{% if request.path == '/dashboard' %}active{% endif %}" style="color: white; text-decoration: none;">🏠 Dashboard</a>
+      </li>
+      <li style="margin-bottom: 15px;">
+        <a href="{{ url_for('analytics') }}" class="{% if request.path == '/analytics' %}active{% endif %}" style="color: white; text-decoration: none;">📈 Analytics</a>
+      </li>
+      <li style="margin-bottom: 15px;">
+        <a href="{{ url_for('settings') }}" class="{% if request.path == '/settings' %}active{% endif %}" style="color: white; text-decoration: none;">⚙️ Settings</a>
+      </li>
+      <li>
+        <a href="{{ url_for('sign_page') }}" style="color: white; text-decoration: none;">🚪 Logout</a>
+      </li>
+    </ul>
+  </nav>
+</aside>

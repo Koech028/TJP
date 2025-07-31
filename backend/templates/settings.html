@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradeJournal Pro | Trade Journal & Settings</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #0f172a;
+            --accent: #7c3aed;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --light: #f1f5f9;
+            --gray: #64748b;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+            --sidebar-bg: #0f172a;
+        }
+
+        .dark-mode {
+            --primary: #3b82f6;
+            --secondary: #f1f5f9;
+            --accent: #a78bfa;
+            --success: #34d399;
+            --warning: #fbbf24;
+            --danger: #f87171;
+            --dark: #f1f5f9;
+            --light: #0f172a;
+            --gray: #94a3b8;
+            --card-bg: #1e293b;
+            --border: #334155;
+            --sidebar-bg: #0f172a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            transition: background-color 0.3s, color 0.3s;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 240px;
+            height: 100vh;
+            background-color: var(--sidebar-bg);
+            color: white;
+            padding: 20px;
+            overflow: hidden;
+            z-index: 1000;
+            border-right: 1px solid #1e293b;
+        }
+
+            .sidebar h2 {
+                margin-bottom: 30px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .sidebar ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .sidebar li {
+                margin-bottom: 20px;
+            }
+
+            .sidebar a {
+                color: white;
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px;
+                border-radius: 8px;
+                transition: background-color 0.3s, transform 0.2s;
+            }
+
+                .sidebar a:hover {
+                    background-color: #1e293b;
+                    transform: translateX(5px);
+                }
+
+                .sidebar a.active {
+                    background-color: var(--primary);
+                }
+
+        /* Main content area */
+        .main-content {
+            margin-left: 240px;
+            padding: 20px;
+            min-height: 100vh;
+            overflow-y: auto;
+            width: calc(100% - 240px);
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+            .header h1 {
+                font-size: 2.2rem;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+
+                .header h1 i {
+                    color: var(--accent);
+                }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+            .btn-primary:hover {
+                opacity: 0.9;
+                transform: translateY(-1px);
+            }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+            .btn-outline:hover {
+                background-color: rgba(37, 99, 235, 0.1);
+            }
+
+        .theme-toggle {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+            .theme-toggle:hover {
+                transform: rotate(15deg);
+            }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+            .tab:hover {
+                background-color: rgba(37, 99, 235, 0.1);
+            }
+
+            .tab.active {
+                background: var(--primary);
+                color: white;
+            }
+
+        /* Journal Container */
+        .journal-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Journal Form */
+        .journal-form-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+        }
+
+            .journal-form-container:hover {
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 500;
+                color: var(--dark);
+            }
+
+            .form-group input, .form-group select, .form-group textarea {
+                width: 100%;
+                padding: 10px 14px;
+                border-radius: 8px;
+                border: 1px solid var(--border);
+                background: var(--card-bg);
+                color: var(--dark);
+                font-size: 0.95rem;
+                transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            }
+
+                .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+                    border-color: var(--primary);
+                    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+                    outline: none;
+                }
+
+            .form-group textarea {
+                min-height: 100px;
+                resize: vertical;
+            }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+
+        /* Journal Entries */
+        .journal-entries-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+        }
+
+            .journal-entries-container:hover {
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            }
+
+        .entries-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .entries-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+            max-height: 500px;
+            padding-right: 5px;
+        }
+
+            .entries-list::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .entries-list::-webkit-scrollbar-track {
+                background: var(--border);
+                border-radius: 10px;
+            }
+
+            .entries-list::-webkit-scrollbar-thumb {
+                background: var(--primary);
+                border-radius: 10px;
+            }
+
+        .entry-item {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+            .entry-item:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            }
+
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .entry-pair {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pair-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bg-primary {
+            background-color: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+        }
+
+        .bg-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .bg-warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .bg-danger {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .entry-date {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .entry-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            font-weight: 500;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+
+        .entry-notes {
+            color: var(--gray);
+            line-height: 1.5;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        .positive {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .negative {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        /* Settings */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .settings-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+        }
+
+            .settings-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            }
+
+        .settings-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 1px dashed var(--border);
+        }
+
+        .settings-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border);
+            transition: background-color 0.2s ease;
+            border-radius: 6px;
+        }
+
+            .setting-item:hover {
+                background-color: rgba(37, 99, 235, 0.05);
+            }
+
+        .setting-label {
+            font-weight: 500;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            border-left: 4px solid transparent;
+        }
+
+            .alert.alert-success {
+                background-color: rgba(16, 185, 129, 0.1);
+                color: var(--success);
+                border-left-color: var(--success);
+            }
+
+            .alert.alert-danger {
+                background-color: rgba(239, 68, 68, 0.1);
+                color: var(--danger);
+                border-left-color: var(--danger);
+            }
+
+        /* Toggle Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+
+            .switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+            .slider:before {
+                position: absolute;
+                content: "";
+                height: 18px;
+                width: 18px;
+                left: 2px;
+                bottom: 2px;
+                background-color: white;
+                transition: .4s;
+                border-radius: 50%;
+            }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+            input:checked + .slider:before {
+                transform: translateX(22px);
+            }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .journal-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                overflow-x: auto;
+                padding-bottom: 5px;
+            }
+
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .setting-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+
+        /* Hidden sections */
+        .page-section {
+            display: none;
+        }
+
+            .page-section.active {
+                display: block;
+            }
+
+        .dropdown-menu {
+            min-width: 120px;
+            padding: 5px 0;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .dropdown-item {
+            padding: 8px 14px;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            border: none;
+            background: none;
+            color: var(--dark);
+        }
+
+            .dropdown-item:hover {
+                background-color: rgba(37, 99, 235, 0.1);
+            }
+
+        .trade-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            position: relative;
+            transition: box-shadow 0.2s ease;
+        }
+
+            .trade-card:hover {
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            }
+
+        .entry-actions-dropdown {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            z-index: 100;
+            min-width: 120px;
+            padding: 5px 0;
+        }
+
+        .dropdown-item {
+            padding: 8px 16px;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+            .dropdown-item:hover {
+                background: rgba(37, 99, 235, 0.1);
+            }
+
+        /* Empty state */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 30px;
+            color: var(--gray);
+        }
+
+            .empty-state i {
+                font-size: 3rem;
+                margin-bottom: 15px;
+                color: var(--primary);
+            }
+
+            .empty-state p {
+                margin-top: 10px;
+            }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .entry-item {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h2><i class="fas fa-chart-line"></i> TradeJournal</h2>
+        <ul>
+            <li>
+                <a href="{{ url_for('dashboard') }}" class="{% if request.path == '/dashboard' %}active{% endif %}">
+                    <i class="fas fa-home"></i> Home
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('analytics') }}" class="{% if request.path == '/analytics' %}active{% endif %}">
+                    <i class="fas fa-chart-bar"></i> Analytics
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('settings') }}" class="{% if request.path == '/settings' %}active{% endif %}">
+                    <i class="fas fa-exchange-alt"></i> Journal
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('report') }}" class="{% if request.path == '/report' %}active{% endif %}">
+                    <i class="fas fa-file-alt"></i> Reports
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('settings') }}" class="{% if request.path == '/settings' %}active{% endif %}">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('support') }}" class="{% if request.path == '/support' %}active{% endif %}">
+                    <i class="fas fa-headset"></i> Support
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('sign_page') }}">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <!-- Header -->
+            <div class="header">
+                <h1 id="page-title"><i class="fas fa-book"></i> Trade Journal</h1>
+                <div class="controls">
+                    <button class="btn btn-primary" id="journal-tab-btn">
+                        <i class="fas fa-book"></i> Journal
+                    </button>
+                    <button class="btn btn-outline" id="settings-tab-btn">
+                        <i class="fas fa-cog"></i> Settings
+                    </button>
+                    <div class="theme-toggle" id="themeToggle">
+                        <i class="fas fa-moon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <div class="tab active" data-tab="journal">Trade Journal</div>
+                <div class="tab" data-tab="settings">Settings</div>
+            </div>
+
+            <!-- Trade Journal Section -->
+            <section id="journal-section" class="page-section active">
+                <div class="journal-container">
+                    <!-- Journal Form -->
+                    <div class="journal-form-container">
+                        <h2><i class="fas fa-plus-circle"></i> New Trade Entry</h2>
+                        <form class="journal-form" method="POST" action="/settings">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="trade_id" id="trade-id">
+
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="trade-pair">Asset/Pair</label>
+                                    <input type="text" id="trade-pair" name="trade_pair" placeholder="e.g. EUR/USD, AAPL, BTC">
+                                </div>
+                                <div class="form-group">
+                                    <label for="trade-type">Trade Type</label>
+                                    <select id="trade-type" name="trade_type">
+                                        <option value="">Select trade type</option>
+                                        <option value="buy">Buy/Long</option>
+                                        <option value="sell">Sell/Short</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="entry-position">Entry Position</label>
+                                    <input type="number" id="entry-position" name="entry_position" step="0.00001">
+                                </div>
+                                <div class="form-group">
+                                    <label for="closing-position">Closing Position</label>
+                                    <input type="number" id="closing-position" name="closing_position" step="0.00001">
+                                </div>
+                                <div class="form-group">
+                                    <label for="position-size">Lot Size</label>
+                                    <input type="number" id="position-size" name="position_size" step="0.01"> <!-- lot size -->
+                                </div>
+                                <div class="form-group">
+                                    <label for="trade-date">Trade Date</label>
+                                    <input type="date" id="trade-date" name="trade_date"
+                                           max="{{ now.strftime('%Y-%m-%d') }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="profit-loss">Profit/Loss ($)</label>
+                                    <input type="number" id="profit-loss" name="profit_loss" step="0.0001">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="trade-notes">Notes</label>
+                                <textarea id="trade-notes" name="trade_notes"
+                                          placeholder="Your notes, strategy, or observations"></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary" id="submit-button">Save Trade</button>
+                                <button type="button" class="btn btn-outline" onclick="clearTradeForm()">Clear</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Journal Entries -->
+                    <div class="journal-entries-container">
+                        <div class="entries-header">
+                            <h2><i class="fas fa-history"></i> Recent Trades</h2>
+                        </div>
+                        <div class="entries-list">
+                            {% for trade in trades %}
+                            <div class="entry-item trade-card">
+                                <div class="entry-header">
+                                    <div class="entry-pair">
+                                        <div class="pair-icon {% if trade.profit > 0 %}bg-success{% elif trade.profit < 0 %}bg-danger{% else %}bg-primary{% endif %}">
+                                            <i class="fas fa-chart-line"></i>
+                                        </div>
+                                        <div>{{ trade.symbol }}</div>
+                                    </div>
+                                    <div class="entry-date">{{ trade.entry_time.strftime('%m/%d/%Y') }}</div>
+                                </div>
+                                <div class="entry-details">
+                                    <div class="detail-item">
+                                        <div class="detail-label">Type</div>
+                                        <div class="detail-value">{{ trade.trade_type }}</div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <div class="detail-label">Entry</div>
+                                        <div class="detail-value">{{ '%.5f'|format(trade.entry_position) }}</div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <div class="detail-label">Exit</div>
+                                        <div class="detail-value">{{ '%.5f'|format(trade.closing_position) }}</div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <div class="detail-label">P/L</div>
+                                        <div class="detail-value {% if trade.profit > 0 %}positive{% elif trade.profit < 0 %}negative{% endif %}">
+                                            {{ get_currency_symbol(user.currency or 'USD') }}{{ '%.4f'|format(convert_currency(trade.profit, 'USD', user.currency or 'USD')) }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="entry-notes">
+                                    <strong>Notes:</strong> {{ trade.notes or "No notes provided." }}
+                                </div>
+                                <div class="entry-actions-dropdown">
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-icon toggle-dropdown"
+                                                onclick="toggleDropdown(this)">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <form method="POST" action="/delete_trade" style="margin: 0;">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <input type="hidden" name="trade_id" value="{{ trade.id }}">
+                                                <button type="submit" class="dropdown-item">Delete</button>
+                                            </form>
+                                            <button type="button" class="dropdown-item"
+                                                    onclick='editTrade({{ trade.to_dict() | tojson | safe }})'>
+                                                Edit
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="entry-item">
+                                <p>No trades have been recorded yet.</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings-section" class="page-section">
+                <div class="settings-grid">
+                    <!-- Profile Settings Card -->
+                    <form method="POST" action="/settings" class="settings-card">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="settings-header">
+                            <div class="pair-icon bg-primary">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="settings-title">Profile Settings</div>
+                        </div>
+                        <!-- Flash Messages -->
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                        {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {% endwith %}
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" name="username" value="{{ user.name }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" value="{{ user.email }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="initial_balance">Initial Balance</label>
+                            <input type="number" id="initial_balance" name="initial_balance"
+                                   value="{{ user.initial_balance or 10000 }}" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="timezone">Timezone</label>
+                            <select id="timezone" name="timezone">
+                                {% set current_tz = user.timezone or 'Africa/Nairobi' %}
+                                {% for tz_value, tz_label in timezone_options.items() %}
+                                <option value="{{ tz_value }}" {% if current_tz==tz_value %}selected{% endif %}>
+                                    {{ tz_label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="currency">Default Currency</label>
+                            <select id="currency" name="currency">
+                                {% set curr = user.currency or session.get('currency', 'USD') %}
+                                {% for currency, name in currency_name_map.items() %}
+                                <option value="{{ currency }}" {% if curr==currency %}selected{% endif %}>
+                                    {{ currency }} - {{ name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn btn-primary">Update Profile</button>
+                        </div>
+                    </form>
+
+                    <!-- Notifications Settings Card -->
+                    <form method="POST" action="/settings" class="settings-card">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="settings-header">
+                            <div class="pair-icon bg-success">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <div class="settings-title">Notifications</div>
+                        </div>
+                        {% for key, label in notifications.items() %}
+                        <div class="setting-item">
+                            <div class="setting-label">{{ label }}</div>
+                            <label class="switch">
+                                <input type="checkbox" name="notifications[{{ key }}]" {% if user.notifications and user.notifications.get(key) %}checked{% endif %}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        {% endfor %}
+                        <div class="form-actions">
+                            <button class="btn btn-primary">Update Notifications</button>
+                        </div>
+                    </form>
+
+                    <!-- Security Settings Card -->
+                    <form method="POST" action="/settings" class="settings-card">
+                        <input type="hidden" name="action" value="change_password">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                        <div class="settings-header">
+                            <div class="pair-icon bg-warning">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <div class="settings-title">Security</div>
+                        </div>
+
+                        <!-- Current Password -->
+                        <div class="form-group">
+                            <label for="current_password">Current Password</label>
+                            <input type="password" id="current_password" name="current_password" placeholder="Enter current password" required>
+                        </div>
+
+                        <!-- New Password -->
+                        <div class="form-group">
+                            <label for="new_password">New Password</label>
+                            <input type="password" id="new_password" name="new_password" placeholder="Enter new password" required>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="form-group">
+                            <label for="confirm_password">Confirm Password</label>
+                            <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm new password" required>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Change Password</button>
+                        </div>
+                    </form>
+
+                    <!-- Broker Connections Card -->
+                    <form method="POST" action="/settings" class="settings-card">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="settings-header">
+                            <div class="pair-icon bg-danger">
+                                <i class="fas fa-plug"></i>
+                            </div>
+                            <div class="settings-title">Broker Connections</div>
+                        </div>
+                        {% if user.brokers %}
+                        {% for broker in user.brokers %}
+                        <div class="setting-item">
+                            <div class="setting-label">{{ broker.name | capitalize }}</div>
+                            <div>
+                                <span class="{{ 'positive' if broker.connected else 'negative' }}">
+                                    {{ 'Connected' if broker.connected else 'Disconnected' }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <div class="setting-item">
+                            <div class="setting-label">No broker connected</div>
+                        </div>
+                        {% endif %}
+                        <div class="form-group">
+                            <label for="broker_name">Add New Broker</label>
+                            <select id="broker_name" name="broker_name" class="form-control" required>
+                                <option value="">-- Select Broker --</option>
+                                <option value="alpaca">Alpaca (Paper & Live)</option>
+                                <option value="interactive_brokers">Interactive Brokers (TWS / Gateway)</option>
+                                <option value="binance">Binance (Crypto)</option>
+                                <option value="oanda">OANDA (Forex & CFDs)</option>
+                                <option value="td_ameritrade">TD Ameritrade (Legacy)</option>
+                                <option value="kucoin">KuCoin (Crypto)</option>
+                                <option value="mock">Mock Broker (Test Only)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="api_key">API Key</label>
+                            <input type="text" id="api_key" name="api_key" placeholder="Enter your API key" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="api_secret">API Secret</label>
+                            <input type="text" id="api_secret" name="api_secret" placeholder="Enter your API secret" required>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Connect Broker</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // === Theme Toggle with localStorage ===
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            body.classList.add('dark-mode');
+            themeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
+        }
+
+        // Toggle theme
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            const isDark = body.classList.contains('dark-mode');
+            themeToggle.querySelector('i').classList.toggle('fa-moon', !isDark);
+            themeToggle.querySelector('i').classList.toggle('fa-sun', isDark);
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+
+        // === Dropdown Toggle ===
+        function toggleDropdown(button) {
+            const menu = button.nextElementSibling;
+            document.querySelectorAll('.dropdown-menu').forEach(m => {
+                if (m !== menu) m.style.display = 'none';
+            });
+            menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+        }
+
+        // Hide dropdowns on outside click
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown-menu').forEach(m => m.style.display = 'none');
+            }
+        });
+
+        // === Tab Navigation ===
+        const tabs = document.querySelectorAll('.tab');
+        const journalBtn = document.getElementById('journal-tab-btn');
+        const settingsBtn = document.getElementById('settings-tab-btn');
+        const journalSection = document.getElementById('journal-section');
+        const settingsSection = document.getElementById('settings-section');
+        const pageTitle = document.getElementById('page-title');
+
+        function activateTab(tabName) {
+            tabs.forEach(tab => tab.classList.remove('active'));
+            const activeTab = document.querySelector(`.tab[data-tab="${tabName}"]`);
+            if (activeTab) activeTab.classList.add('active');
+
+            journalSection?.classList.remove('active');
+            settingsSection?.classList.remove('active');
+
+            if (tabName === 'journal') {
+                journalSection?.classList.add('active');
+                pageTitle.innerHTML = '<i class="fas fa-book"></i> Trade Journal';
+                journalBtn?.classList.add('btn-primary');
+                journalBtn?.classList.remove('btn-outline');
+                settingsBtn?.classList.remove('btn-primary');
+                settingsBtn?.classList.add('btn-outline');
+            } else {
+                settingsSection?.classList.add('active');
+                pageTitle.innerHTML = '<i class="fas fa-cog"></i> Settings';
+                settingsBtn?.classList.add('btn-primary');
+                settingsBtn?.classList.remove('btn-outline');
+                journalBtn?.classList.remove('btn-primary');
+                journalBtn?.classList.add('btn-outline');
+            }
+        }
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.getAttribute('data-tab');
+                if (tabName) activateTab(tabName);
+            });
+        });
+
+        journalBtn?.addEventListener('click', () => activateTab('journal'));
+        settingsBtn?.addEventListener('click', () => activateTab('settings'));
+
+        // === Clear Trade Form ===
+        function clearTradeForm() {
+            const form = document.querySelector('.journal-form');
+            form.reset();
+            document.getElementById('trade-id').value = '';
+            form.classList.remove('editing');
+            const submitBtn = document.getElementById('submit-button');
+            if (submitBtn) submitBtn.textContent = 'Save Trade';
+        }
+
+        // === Edit Trade (Safe Version) ===
+        function editTrade(trade) {
+            document.getElementById('trade-id').value = trade.id ?? '';
+            document.getElementById('trade-pair').value = trade.symbol ?? '';
+            document.getElementById('trade-type').value = trade.trade_type?.toLowerCase() ?? '';
+            document.getElementById('entry-position').value = trade.entry_position ?? '';
+            document.getElementById('closing-position').value = trade.closing_position ?? '';
+            document.getElementById('position-size').value = trade.quantity ?? '';
+            document.getElementById('trade-date').value = trade.entry_time?.split('T')[0] ?? '';
+            document.getElementById('profit-loss').value = trade.profit ?? '';
+            document.getElementById('trade-notes').value = trade.notes ?? '';
+
+            document.querySelector('.journal-form').scrollIntoView({ behavior: 'smooth' });
+            document.querySelector('.journal-form').classList.add('editing');
+
+            const submitBtn = document.getElementById('submit-button');
+            if (submitBtn) submitBtn.textContent = 'Update Trade';
+        }
+    </script>
+
+</body>
+</html>
